@@ -24,3 +24,13 @@ Frontend: Javascript
 
 Backend: 
 
+
+
+
+
+
+### actionable steps
+
+    1. aquire api key for gpt
+    2. decide service for spoof emails / voip
+
