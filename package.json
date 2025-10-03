@@ -1,0 +1,23 @@
+{
+  "name": "phisher-man",
+  "version": "1.0.0",
+  "description": "Phishing service made modern!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xethrus-org/Phisher-Man.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xethrus-org/Phisher-Man/issues"
+  },
+  "homepage": "https://github.com/xethrus-org/Phisher-Man#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
