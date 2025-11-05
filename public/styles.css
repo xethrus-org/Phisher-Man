@@ -26,6 +26,16 @@ h2 {
     width: 250px;
     text-align: center;
     font-family: "Arial";
+    color: inherit;
+    text-decoration: none;
+}
+.box:hover {
+    transform: scale(1.03);
+    border-color: blue;
+    background-color: white;
+}
+.box:visited {
+    color: inherit;
 }
 .faq-title {
     text-align: center;
