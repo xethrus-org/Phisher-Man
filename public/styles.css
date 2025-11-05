@@ -1,13 +1,51 @@
 body {
     background-color: powderblue;
 }
-h1 {
+.title {
     text-align: center;
     font-family: "Arial";
+    font-size: 50px;
 }
 h2 {
     text-align: center;
     font-family: "Arial";
     position: relative;
     top: 40px;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 100px;
+}
+.box {
+    background-color: white;
+    border: 2px solid #000;
+    border-radius: 10px;
+    padding: 20px;
+    width: 250px;
+    text-align: center;
+    font-family: "Arial";
+}
+.faq-title {
+    text-align: center;
+    font-family: "Arial";
+    font-size: 40px;
+    position: relative;
+    top: 40px;
+}
+.faq-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 100px;
+}
+.faq {
+    flex: 0 0 calc(50% - 20px);
+    background-color: white;
+    border: 2px solid #333;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
 }
