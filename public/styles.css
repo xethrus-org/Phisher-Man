@@ -20,7 +20,7 @@ h2 {
 }
 .box {
     background-color: white;
-    border: 2px solid #000;
+    border: 2px solid black;
     border-radius: 10px;
     padding: 20px;
     width: 250px;
@@ -35,17 +35,26 @@ h2 {
     top: 40px;
 }
 .faq-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-items: center;
     margin-top: 100px;
 }
 .faq {
-    flex: 0 0 calc(50% - 20px);
     background-color: white;
-    border: 2px solid #333;
+    border: 2px solid black;
     border-radius: 10px;
-    padding: 20px;
+    padding: 10px;
+    width: 80%;
     text-align: center;
+}
+.faq h3 {
+    font-family: "Arial";
+    font-size: 30px;
+}
+.faq p {
+    font-family: "Arial";
+    text-align: left;
+    padding: 20px;
+    line-height: 25px
 }
