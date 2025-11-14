@@ -1,0 +1,7 @@
+/target
+
+# Environment variables (contains secrets!)
+.env
+
+# Cargo.lock for binaries
+Cargo.lock
