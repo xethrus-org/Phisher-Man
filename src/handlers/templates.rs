@@ -10,7 +10,7 @@ use crate::error::{AppError, Result};
 use crate::models::{CreateTemplate, Template, UpdateTemplate};
 
 pub async fn create_template(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Json(payload): Json<CreateTemplate>,
 ) -> Result<(StatusCode, Json<Template>)> {
     let template = sqlx::query_as::<_, Template>(
@@ -32,7 +32,7 @@ pub async fn create_template(
     Ok((StatusCode::CREATED, Json(template)))
 }
 
-pub async fn list_templates(State(pool): State<PgPool>) -> Result<Json<Vec<Template>>> {
+pub async fn list_templates(State((pool, _)): State<(PgPool, crate::services::EmailService)>) -> Result<Json<Vec<Template>>> {
     let templates = sqlx::query_as::<_, Template>(
         "SELECT * FROM templates WHERE is_public = true OR company_id IS NOT NULL ORDER BY created_at DESC",
     )
@@ -43,7 +43,7 @@ pub async fn list_templates(State(pool): State<PgPool>) -> Result<Json<Vec<Templ
 }
 
 pub async fn get_template(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Template>> {
     let template = sqlx::query_as::<_, Template>("SELECT * FROM templates WHERE id = $1")
@@ -56,7 +56,7 @@ pub async fn get_template(
 }
 
 pub async fn update_template(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateTemplate>,
 ) -> Result<Json<Template>> {
@@ -99,7 +99,7 @@ pub async fn update_template(
 }
 
 pub async fn delete_template(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
     let result = sqlx::query("DELETE FROM templates WHERE id = $1")

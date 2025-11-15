@@ -16,7 +16,7 @@ pub struct ListCampaignsQuery {
 }
 
 pub async fn create_campaign(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Json(payload): Json<CreateCampaign>,
 ) -> Result<(StatusCode, Json<Campaign>)> {
     let campaign = sqlx::query_as::<_, Campaign>(
@@ -36,7 +36,7 @@ pub async fn create_campaign(
 }
 
 pub async fn list_campaigns(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Query(params): Query<ListCampaignsQuery>,
 ) -> Result<Json<Vec<Campaign>>> {
     let campaigns = if let Some(company_id) = params.company_id {
@@ -56,7 +56,7 @@ pub async fn list_campaigns(
 }
 
 pub async fn get_campaign(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Campaign>> {
     let campaign = sqlx::query_as::<_, Campaign>("SELECT * FROM campaigns WHERE id = $1")
@@ -69,7 +69,7 @@ pub async fn get_campaign(
 }
 
 pub async fn update_campaign(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateCampaign>,
 ) -> Result<Json<Campaign>> {
@@ -108,7 +108,7 @@ pub async fn update_campaign(
 }
 
 pub async fn delete_campaign(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
     let result = sqlx::query("DELETE FROM campaigns WHERE id = $1")

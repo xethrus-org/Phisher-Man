@@ -10,7 +10,7 @@ use crate::error::{AppError, Result};
 use crate::models::{Company, CreateCompany, UpdateCompany};
 
 pub async fn create_company(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Json(payload): Json<CreateCompany>,
 ) -> Result<(StatusCode, Json<Company>)> {
     let company = sqlx::query_as::<_, Company>(
@@ -28,7 +28,7 @@ pub async fn create_company(
     Ok((StatusCode::CREATED, Json(company)))
 }
 
-pub async fn list_companies(State(pool): State<PgPool>) -> Result<Json<Vec<Company>>> {
+pub async fn list_companies(State((pool, _)): State<(PgPool, crate::services::EmailService)>) -> Result<Json<Vec<Company>>> {
     let companies = sqlx::query_as::<_, Company>("SELECT * FROM companies ORDER BY created_at DESC")
         .fetch_all(&pool)
         .await?;
@@ -37,7 +37,7 @@ pub async fn list_companies(State(pool): State<PgPool>) -> Result<Json<Vec<Compa
 }
 
 pub async fn get_company(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Company>> {
     let company = sqlx::query_as::<_, Company>("SELECT * FROM companies WHERE id = $1")
@@ -50,7 +50,7 @@ pub async fn get_company(
 }
 
 pub async fn update_company(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateCompany>,
 ) -> Result<Json<Company>> {
@@ -91,7 +91,7 @@ pub async fn update_company(
     Ok(Json(updated))
 }
 
-pub async fn delete_company(State(pool): State<PgPool>, Path(id): Path<Uuid>) -> Result<StatusCode> {
+pub async fn delete_company(State((pool, _)): State<(PgPool, crate::services::EmailService)>, Path(id): Path<Uuid>) -> Result<StatusCode> {
     let result = sqlx::query("DELETE FROM companies WHERE id = $1")
         .bind(id)
         .execute(&pool)

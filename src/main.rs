@@ -3,6 +3,7 @@ mod db;
 mod error;
 mod handlers;
 mod models;
+mod services;
 
 use axum::{
     routing::{get, post, delete, patch},
@@ -16,6 +17,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use config::Config;
 use db::create_pool;
+use services::EmailService;
 
 #[tokio::main]
 async fn main() {
@@ -38,6 +40,10 @@ async fn main() {
 
     tracing::info!("Database pool created successfully");
 
+    // create email service
+    let email_service = EmailService::from_env();
+    tracing::info!("Email service initialized");
+
     // build api routes
     let api_routes = Router::new()
         .route("/companies", post(handlers::create_company))
@@ -59,7 +65,8 @@ async fn main() {
         .route("/templates", get(handlers::list_templates))
         .route("/templates/:id", get(handlers::get_template))
         .route("/templates/:id", patch(handlers::update_template))
-        .route("/templates/:id", delete(handlers::delete_template));
+        .route("/templates/:id", delete(handlers::delete_template))
+        .route("/campaigns/:id/send", post(handlers::send_campaign));
 
     // build our application with routes
     let app = Router::new()
@@ -67,7 +74,7 @@ async fn main() {
         .nest("/api", api_routes)
         .nest_service("/", ServeDir::new("static"))
         .layer(TraceLayer::new_for_http())
-        .with_state(pool);
+        .with_state((pool, email_service));
 
     // run the server
     let listener = tokio::net::TcpListener::bind(&config.addr())
