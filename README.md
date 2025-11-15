@@ -28,10 +28,9 @@ PhisherMan helps organizations test their employees' vulnerability to phishing a
 
 ### Prerequisites
 
-- Rust 1.88+ ([install rustup](https://rustup.rs/))
-- Docker (for PostgreSQL)
+- Docker & Docker Compose
 
-### Setup
+### Setup (Docker - Recommended)
 
 1. Clone the repo
 ```bash
@@ -39,7 +38,25 @@ git clone git@github.com:xethrus-org/Phisher-Man.git
 cd PhisherMan
 ```
 
-2. Start PostgreSQL
+2. Start everything with docker-compose
+```bash
+docker-compose up --build
+```
+
+That's it! The server runs on `http://localhost:3000`
+
+Docker compose handles:
+- PostgreSQL database setup
+- Running migrations
+- Building and running the Rust app
+
+### Local Development (Without Docker)
+
+If you want to run Rust locally:
+
+1. **Prerequisites**: Rust 1.88+ ([install rustup](https://rustup.rs/)) + Docker (for PostgreSQL)
+
+2. **Start PostgreSQL**
 ```bash
 docker run --name phisherman-db \
   -e POSTGRES_PASSWORD=dev123 \
@@ -48,18 +65,17 @@ docker run --name phisherman-db \
   -d postgres:15
 ```
 
-3. Set up environment
+3. **Setup environment**
 ```bash
 cp .env.example .env
-# Edit .env with your database URL if needed
 ```
 
-4. Run migrations
+4. **Run migrations**
 ```bash
 docker exec -i phisherman-db psql -U postgres -d phisherman < migrations/001_initial_schema.sql
 ```
 
-5. Build and run
+5. **Build and run**
 ```bash
 cargo build
 cargo run
