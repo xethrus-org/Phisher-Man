@@ -1,10 +1,11 @@
 mod config;
 mod db;
 mod error;
+mod handlers;
 mod models;
 
 use axum::{
-    routing::get,
+    routing::{get, post, delete, patch},
     Router,
 };
 use tower_http::{
@@ -37,9 +38,18 @@ async fn main() {
 
     tracing::info!("Database pool created successfully");
 
+    // build api routes
+    let api_routes = Router::new()
+        .route("/companies", post(handlers::create_company))
+        .route("/companies", get(handlers::list_companies))
+        .route("/companies/:id", get(handlers::get_company))
+        .route("/companies/:id", patch(handlers::update_company))
+        .route("/companies/:id", delete(handlers::delete_company));
+
     // build our application with routes
     let app = Router::new()
         .route("/health", get(health_check))
+        .nest("/api", api_routes)
         .nest_service("/", ServeDir::new("static"))
         .layer(TraceLayer::new_for_http())
         .with_state(pool);
