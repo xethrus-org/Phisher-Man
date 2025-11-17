@@ -44,7 +44,12 @@ async fn main() {
         .route("/companies", get(handlers::list_companies))
         .route("/companies/:id", get(handlers::get_company))
         .route("/companies/:id", patch(handlers::update_company))
-        .route("/companies/:id", delete(handlers::delete_company));
+        .route("/companies/:id", delete(handlers::delete_company))
+        .route("/employees", post(handlers::create_employee))
+        .route("/employees", get(handlers::list_employees))
+        .route("/employees/:id", get(handlers::get_employee))
+        .route("/employees/:id", patch(handlers::update_employee))
+        .route("/employees/:id", delete(handlers::delete_employee));
 
     // build our application with routes
     let app = Router::new()
