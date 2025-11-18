@@ -49,7 +49,17 @@ async fn main() {
         .route("/employees", get(handlers::list_employees))
         .route("/employees/:id", get(handlers::get_employee))
         .route("/employees/:id", patch(handlers::update_employee))
-        .route("/employees/:id", delete(handlers::delete_employee));
+        .route("/employees/:id", delete(handlers::delete_employee))
+        .route("/campaigns", post(handlers::create_campaign))
+        .route("/campaigns", get(handlers::list_campaigns))
+        .route("/campaigns/:id", get(handlers::get_campaign))
+        .route("/campaigns/:id", patch(handlers::update_campaign))
+        .route("/campaigns/:id", delete(handlers::delete_campaign))
+        .route("/templates", post(handlers::create_template))
+        .route("/templates", get(handlers::list_templates))
+        .route("/templates/:id", get(handlers::get_template))
+        .route("/templates/:id", patch(handlers::update_template))
+        .route("/templates/:id", delete(handlers::delete_template));
 
     // build our application with routes
     let app = Router::new()
