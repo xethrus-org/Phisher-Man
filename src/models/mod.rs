@@ -3,7 +3,7 @@ pub mod employee;
 pub mod campaign;
 pub mod template;
 
-pub use company::Company;
-pub use employee::Employee;
-pub use campaign::Campaign;
-pub use template::Template;
+pub use company::{Company, CreateCompany, UpdateCompany};
+pub use employee::{Employee, CreateEmployee, UpdateEmployee};
+pub use campaign::{Campaign, CreateCampaign, UpdateCampaign};
+pub use template::{Template, CreateTemplate, UpdateTemplate};
