@@ -16,7 +16,7 @@ pub struct ListEmployeesQuery {
 }
 
 pub async fn create_employee(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Json(payload): Json<CreateEmployee>,
 ) -> Result<(StatusCode, Json<Employee>)> {
     let employee = sqlx::query_as::<_, Employee>(
@@ -39,7 +39,7 @@ pub async fn create_employee(
 }
 
 pub async fn list_employees(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Query(params): Query<ListEmployeesQuery>,
 ) -> Result<Json<Vec<Employee>>> {
     let employees = if let Some(company_id) = params.company_id {
@@ -59,7 +59,7 @@ pub async fn list_employees(
 }
 
 pub async fn get_employee(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Employee>> {
     let employee = sqlx::query_as::<_, Employee>("SELECT * FROM employees WHERE id = $1")
@@ -72,7 +72,7 @@ pub async fn get_employee(
 }
 
 pub async fn update_employee(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateEmployee>,
 ) -> Result<Json<Employee>> {
@@ -119,7 +119,7 @@ pub async fn update_employee(
 }
 
 pub async fn delete_employee(
-    State(pool): State<PgPool>,
+    State((pool, _)): State<(PgPool, crate::services::EmailService)>,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode> {
     let result = sqlx::query("DELETE FROM employees WHERE id = $1")
