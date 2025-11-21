@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: Dashboard</title>
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+    <link rel="stylesheet" href="styles.css">
+    <script src="api.js"></script>
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .btn {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .btn-danger {
+            background: #f44336;
+        }
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-draft { background: #ffc107; color: #000; }
+        .status-active { background: #4CAF50; color: white; }
+        .status-completed { background: #2196F3; color: white; }
+        .nav-links {
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin-right: 15px;
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">
+        <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt="" style="width:80px; vertical-align:middle;">
+        Phisher-Man: Dashboard
+    </h1>
+
+    <div class="dashboard-container">
+        <div class="nav-links">
+            <a href="index.html">← Home</a>
+            <a href="custom.html">Create Template</a>
+        </div>
+
+        <!-- Campaigns Section -->
+        <div class="section">
+            <h2>Campaigns</h2>
+            <div id="campaigns-list">Loading...</div>
+        </div>
+
+        <!-- Templates Section -->
+        <div class="section">
+            <h2>Email Templates</h2>
+            <div id="templates-list">Loading...</div>
+        </div>
+
+        <!-- Employees Section -->
+        <div class="section">
+            <h2>Employees</h2>
+            <div id="employees-list">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadCampaigns() {
+            try {
+                const campaigns = await API.campaigns.list();
+                const container = document.getElementById('campaigns-list');
+
+                if (campaigns.length === 0) {
+                    container.innerHTML = '<p>No campaigns found.</p>';
+                    return;
+                }
+
+                const templates = await API.templates.list();
+
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${campaigns.map(c => `
+                                <tr>
+                                    <td>${c.name}</td>
+                                    <td><span class="status-badge status-${c.status}">${c.status.toUpperCase()}</span></td>
+                                    <td>${formatDate(c.created_at)}</td>
+                                    <td>
+                                        <select id="template-${c.id}">
+                                            <option value="">Select template...</option>
+                                            ${templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                                        </select>
+                                        <button class="btn" onclick="sendCampaign('${c.id}')">Send Campaign</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                document.getElementById('campaigns-list').innerHTML =
+                    `<p style="color: red;">Error loading campaigns: ${error.message}</p>`;
+            }
+        }
+
+        async function loadTemplates() {
+            try {
+                const templates = await API.templates.list();
+                const container = document.getElementById('templates-list');
+
+                if (templates.length === 0) {
+                    container.innerHTML = '<p>No templates found. <a href="custom.html">Create one</a></p>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${templates.map(t => `
+                                <tr>
+                                    <td>${t.name}</td>
+                                    <td>${t.subject}</td>
+                                    <td>${t.template_type || 'custom'}</td>
+                                    <td>${formatDate(t.created_at)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                document.getElementById('templates-list').innerHTML =
+                    `<p style="color: red;">Error loading templates: ${error.message}</p>`;
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const employees = await API.employees.list();
+                const container = document.getElementById('employees-list');
+
+                if (employees.length === 0) {
+                    container.innerHTML = '<p>No employees found.</p>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${employees.map(e => `
+                                <tr>
+                                    <td>${e.first_name || ''} ${e.last_name || ''}</td>
+                                    <td>${e.email}</td>
+                                    <td>${e.department || 'N/A'}</td>
+                                    <td>${formatDate(e.created_at)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                document.getElementById('employees-list').innerHTML =
+                    `<p style="color: red;">Error loading employees: ${error.message}</p>`;
+            }
+        }
+
+        async function sendCampaign(campaignId) {
+            const templateSelect = document.getElementById(`template-${campaignId}`);
+            const templateId = templateSelect.value;
+
+            if (!templateId) {
+                showMessage('Please select a template', 'error');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to send this campaign?')) {
+                return;
+            }
+
+            try {
+                const result = await API.campaigns.send(campaignId, templateId);
+                showMessage(result.message, 'success');
+                loadCampaigns(); // Reload to show updated status
+            } catch (error) {
+                showMessage('Failed to send campaign: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize
+        loadCampaigns();
+        loadTemplates();
+        loadEmployees();
+    </script>
+</body>
+</html>
