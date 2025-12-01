@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: Generated Email</title>
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .detail-textbar {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 60px;
+        }
+
+        .detail-textbar textarea {
+            width: 1000px;
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            resize: none;
+            height: 20px;
+            border: 2px solid white;
+        }
+
+        .detail-textbar textarea:focus {
+            border-color: blue;
+            outline: none;
+        }
+
+        .output-box {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .output-box textarea {
+            width: 90%;
+            max-width: 1100px;
+            height: 600px;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid white;
+            border-radius: 12px;
+            background-color: lightgray;
+            color: gray;
+            resize: none;
+        }
+
+        .output-box textarea:focus {
+            outline: none;
+        }
+
+        .detail-textbar {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 60px;
+            gap: 15px;
+        }
+
+        .detail-textbar button {
+            height: 46px;
+            padding: 0 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            margin-top: 1px;
+        }
+
+        .detail-textbar button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title">
+        <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt=""
+            style="width:80px; vertical-align:middle;">
+        Phisher-Man: AI Generated Email
+    </h1>
+    <div class="detail-textbar">
+        <textarea id="details" placeholder="Enter details..." required></textarea>
+        <button id="submitbtn">Submit</button>
+    </div>
+    <script>
+        const details = document.getElementById("details");
+
+        details.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (details.value.trim() !== "") {
+                    details.value = "";
+                }
+            }
+        });
+    </script>
+    <div class="output-box">
+        <textarea id="output" readonly>OpenAI Output...</textarea>
+    </div>
+    <script>
+        const submitBtn = document.getElementById("submitbtn");
+        const output = document.getElementById("output");
+
+        function updateButtonState() {
+            if (output.value.trim() !== "OpenAI Output...") {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
+                submitBtn.style.cursor = "pointer";
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = "0.5";
+                submitBtn.style.cursor = "not-allowed";
+            }
+        }
+
+        output.addEventListener("input", updateButtonState);
+
+        updateButtonState();
+
+        submitBtn.addEventListener("click", () => {
+            window.location.href = "email_entering.html";
+        });
+    </script>
+</body>
+
+</html>
