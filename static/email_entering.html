@@ -1,15 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Phisher-Man: Email Entering</title>
-        <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <h1 class="title">
-            <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt="" style="width:80px; vertical-align:middle;">
-            Phisher-Man: Email Entering
-        </h1>
-    </body>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: Email Entering</title>
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1 class="title">
+        <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt=""
+            style="width:80px; vertical-align:middle;">
+        Phisher-Man: Email Entering
+    </h1>
+    <div class="email-text-inputting">
+        <label for="single-email">Your Email Address</label>
+        <input type="email" id="single-email" placeholder="you@example.com">
+
+        <label for="multi-email">Add Recipient Email</label>
+        <div>
+            <input type="email" id="multi-email" placeholder="recipient@example.com" />
+            <button type="button" id="add-email-btn">Add</button>
+        </div>
+
+        <div class="email-list-container">
+            <h3>Recipient List</h3>
+            <ul id="email-list"></ul>
+        </div>
+    </div>
+</body>
+
 </html>
