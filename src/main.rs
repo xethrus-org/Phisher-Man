@@ -66,7 +66,8 @@ async fn main() {
         .route("/templates/:id", get(handlers::get_template))
         .route("/templates/:id", patch(handlers::update_template))
         .route("/templates/:id", delete(handlers::delete_template))
-        .route("/campaigns/:id/send", post(handlers::send_campaign));
+        .route("/campaigns/:id/send", post(handlers::send_campaign))
+        .route("/send-emails", post(handlers::send_emails_handler));
 
     // build our application with routes
     let app = Router::new()

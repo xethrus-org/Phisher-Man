@@ -8,6 +8,20 @@ use crate::models::{Campaign, Employee};
 use crate::services::EmailService;
 
 #[derive(Debug, Deserialize)]
+pub struct SendEmailsRequest {
+    pub recipients: Vec<String>,
+    pub subject: String,
+    pub body: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct SendEmailsResponse {
+    pub message: String,
+    pub sent: usize,
+    pub failed: usize,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct SendCampaignRequest {
     pub template_id: Uuid,
 }
@@ -17,6 +31,32 @@ pub struct SendCampaignResponse {
     pub sent_count: usize,
     pub failed_count: usize,
     pub message: String,
+}
+
+pub async fn send_emails_handler(
+    State((_, email_service)): State<(PgPool, EmailService)>,
+    Json(payload): Json<SendEmailsRequest>,
+) -> Result<Json<SendEmailsResponse>> {
+    let mut sent = 0usize;
+    let mut failed = 0usize;
+
+    for addr in payload.recipients {
+        match email_service.send_email(&addr, None, &payload.subject, &payload.body) {
+            Ok(_) => {
+                sent += 1;
+            }
+            Err(e) => {
+                failed += 1;
+                tracing::error!("Failed to send email to {}: {}", addr, e);
+            }
+        }
+    }
+
+    Ok(Json(SendEmailsResponse {
+        message: format!("Attempted {} emails: {} sent, {} failed", sent + failed, sent, failed),
+        sent,
+        failed,
+    }))
 }
 
 pub async fn send_campaign(

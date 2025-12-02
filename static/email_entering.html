@@ -143,6 +143,7 @@
             <input type="email" id="multi-email" placeholder="recipient@example.com" />
             <button type="button" id="add-email-btn">Add</button>
             <button id="clear-email-btn" type="button">Clear All</button>
+            <button id="send-email-btn" type="button">Send Emails</button>
         </div>
 
         <div class="email-list-container">
@@ -155,6 +156,7 @@
         const clearBtn = document.getElementById("clear-email-btn");
         const multiEmailInput = document.getElementById("multi-email");
         const emailList = document.getElementById("email-list");
+        const sendBtn = document.getElementById("send-email-btn");
 
         addBtn.addEventListener("click", () => {
             const email = multiEmailInput.value.trim();
@@ -179,6 +181,45 @@
             if (event.key === "Enter") {
                 event.preventDefault();
                 addBtn.click();
+            }
+        });
+        sendBtn.addEventListener("click", async () => {
+            const recipients = Array.from(emailList.querySelectorAll("li"))
+                .map(li => li.textContent.trim())
+                .filter(email => email.length > 0);
+
+            if (recipients.length === 0) {
+                alert("No recipients to send to.");
+                return;
+            }
+
+            const payload = {
+                recipients,
+                subject: "Phisher-Man Test Email",
+                body: "<h1>This is a test email from Phisher-Man</h1><p>Hello from the frontend!</p>"
+            };
+
+            try {
+                const res = await fetch("/api/send-emails", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error("Failed to send emails:", text);
+                    alert("Failed to send emails: " + text);
+                    return;
+                }
+
+                const data = await res.json().catch(() => ({}));
+                alert(data.message || "Emails sent successfully!");
+            } catch (err) {
+                console.error("Network or server error:", err);
+                alert("Error sending emails. Check console for details.");
             }
         });
     </script>
