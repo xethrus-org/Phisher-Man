@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: Manage Campaigns</title>
+    <link rel="icon" type="image/svg" href="https://images.vexels.com/media/users/3/137597/isolated/svg/8f40c0b9230f0900c592b664292a4c80.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script src="api.js"></script>
+    <style>
+        .management-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid black;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            position: static;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+        .btn {
+            padding: 8px 16px;
+            background: rgb(44, 117, 177);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: white;
+            color: black;
+        }
+        .btn-success {
+            background: #4CAF50;
+        }
+        .btn-success:hover {
+            background: #45a049;
+        }
+        .btn-danger {
+            background: #f44336;
+        }
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            margin-right: 15px;
+            color: rgb(44, 117, 177);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: rgb(44, 117, 177);
+            outline: none;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-draft { background: #ffc107; color: #000; }
+        .status-active { background: #4CAF50; color: white; }
+        .status-completed { background: #2196F3; color: white; }
+    </style>
+</head>
+<body>
+    <h1 class="title">
+        <img src="https://images.vexels.com/media/users/3/137597/isolated/svg/8f40c0b9230f0900c592b664292a4c80.svg" alt="Fisherman" style="width:80px; vertical-align:middle;">
+        Phisher-Man: Manage Campaigns
+    </h1>
+
+    <div class="management-container">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="companies.html">Manage Companies</a>
+            <a href="employees.html">Manage Employees</a>
+        </div>
+
+        <!-- Create Campaign Section -->
+        <div class="section">
+            <h2>Create New Campaign</h2>
+            <form id="campaign-form">
+                <div class="form-group">
+                    <label for="campaign-company">Company:</label>
+                    <select id="campaign-company" required>
+                        <option value="">Loading companies...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-name">Campaign Name:</label>
+                    <input type="text" id="campaign-name" placeholder="e.g., Q4 2024 Security Awareness" required>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-description">Description (optional):</label>
+                    <textarea id="campaign-description" placeholder="Describe the purpose and goals of this campaign..."></textarea>
+                </div>
+                <button type="submit" class="btn">Create Campaign</button>
+            </form>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="section">
+            <h2>Filter Campaigns</h2>
+            <div class="form-group">
+                <label for="filter-company">Filter by Company:</label>
+                <select id="filter-company">
+                    <option value="">All Companies</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Campaigns List Section -->
+        <div class="section">
+            <h2>Active Campaigns</h2>
+            <div id="campaigns-list">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        let companies = [];
+        let campaigns = [];
+        let templates = [];
+
+        // Load companies for dropdowns
+        async function loadCompanies() {
+            try {
+                companies = await API.companies.list();
+
+                // Populate company dropdown in form
+                const companySelect = document.getElementById('campaign-company');
+                if (companies.length === 0) {
+                    companySelect.innerHTML = '<option value="">No companies found - create one first</option>';
+                } else {
+                    companySelect.innerHTML = '<option value="">Select a company...</option>' +
+                        companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                }
+
+                // Populate filter dropdown
+                const filterSelect = document.getElementById('filter-company');
+                filterSelect.innerHTML = '<option value="">All Companies</option>' +
+                    companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            } catch (error) {
+                showMessage('Failed to load companies: ' + error.message, 'error');
+            }
+        }
+
+        // Load templates
+        async function loadTemplates() {
+            try {
+                templates = await API.templates.list();
+            } catch (error) {
+                console.error('Failed to load templates:', error);
+            }
+        }
+
+        // Load campaigns
+        async function loadCampaigns(companyId = null) {
+            try {
+                campaigns = await API.campaigns.list(companyId);
+                const container = document.getElementById('campaigns-list');
+
+                if (campaigns.length === 0) {
+                    container.innerHTML = '<p>No campaigns found. Create one above!</p>';
+                    return;
+                }
+
+                // Get company names for display
+                const companyMap = {};
+                companies.forEach(c => companyMap[c.id] = c.name);
+
+                container.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${campaigns.map(c => `
+                                <tr id="campaign-${c.id}">
+                                    <td>${c.name}</td>
+                                    <td>${companyMap[c.company_id] || 'Unknown'}</td>
+                                    <td><span class="status-badge status-${c.status}">${c.status.toUpperCase()}</span></td>
+                                    <td>${c.description || 'N/A'}</td>
+                                    <td>${formatDate(c.created_at)}</td>
+                                    <td>
+                                        ${c.status === 'draft' ? `
+                                            <select id="template-${c.id}" style="padding: 4px; margin-right: 8px;">
+                                                <option value="">Select template...</option>
+                                                ${templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                                            </select>
+                                            <button class="btn btn-success" onclick="sendCampaign('${c.id}')">Send</button>
+                                        ` : ''}
+                                        <button class="btn btn-danger" onclick="deleteCampaign('${c.id}')">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (error) {
+                document.getElementById('campaigns-list').innerHTML =
+                    `<p style="color: red;">Error loading campaigns: ${error.message}</p>`;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('campaign-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const companyId = document.getElementById('campaign-company').value;
+            const name = document.getElementById('campaign-name').value.trim();
+            const description = document.getElementById('campaign-description').value.trim() || null;
+
+            if (!companyId || !name) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            try {
+                await API.campaigns.create({
+                    company_id: companyId,
+                    name: name,
+                    description: description,
+                    status: 'draft'
+                });
+
+                showMessage('Campaign created successfully!', 'success');
+
+                // Clear form
+                document.getElementById('campaign-name').value = '';
+                document.getElementById('campaign-description').value = '';
+
+                // Reload list
+                const filterCompanyId = document.getElementById('filter-company').value || null;
+                loadCampaigns(filterCompanyId);
+            } catch (error) {
+                showMessage('Failed to create campaign: ' + error.message, 'error');
+            }
+        });
+
+        // Handle filter change
+        document.getElementById('filter-company').addEventListener('change', (e) => {
+            const companyId = e.target.value || null;
+            loadCampaigns(companyId);
+        });
+
+        // Send campaign
+        async function sendCampaign(campaignId) {
+            const templateSelect = document.getElementById(`template-${campaignId}`);
+            const templateId = templateSelect.value;
+
+            if (!templateId) {
+                showMessage('Please select a template', 'error');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to send this campaign? Emails will be sent to all employees in the company.')) {
+                return;
+            }
+
+            try {
+                const result = await API.campaigns.send(campaignId, templateId);
+                showMessage(result.message, 'success');
+
+                const filterCompanyId = document.getElementById('filter-company').value || null;
+                loadCampaigns(filterCompanyId);
+            } catch (error) {
+                showMessage('Failed to send campaign: ' + error.message, 'error');
+            }
+        }
+
+        // Delete campaign
+        async function deleteCampaign(id) {
+            if (!confirm('Are you sure you want to delete this campaign?')) {
+                return;
+            }
+
+            try {
+                await API.campaigns.delete(id);
+                showMessage('Campaign deleted successfully!', 'success');
+
+                const filterCompanyId = document.getElementById('filter-company').value || null;
+                loadCampaigns(filterCompanyId);
+            } catch (error) {
+                showMessage('Failed to delete campaign: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize
+        async function init() {
+            await loadCompanies();
+            await loadTemplates();
+            await loadCampaigns();
+        }
+
+        init();
+    </script>
+</body>
+</html>
