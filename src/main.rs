@@ -68,10 +68,16 @@ async fn main() {
         .route("/templates/:id", delete(handlers::delete_template))
         .route("/campaigns/:id/send", post(handlers::send_campaign));
 
+    // build tracking routes (not under /api to avoid CORS issues with email clients)
+    let tracking_routes = Router::new()
+        .route("/track/:token", get(handlers::track_pixel))
+        .route("/click/:token/:link_id", get(handlers::track_link));
+
     // build our application with routes
     let app = Router::new()
         .route("/health", get(health_check))
         .nest("/api", api_routes)
+        .merge(tracking_routes)
         .nest_service("/", ServeDir::new("static"))
         .layer(TraceLayer::new_for_http())
         .with_state((pool, email_service));

@@ -63,34 +63,53 @@ pub async fn send_campaign(
             _ => None,
         };
 
-        match email_service.send_email(
-            &employee.email,
-            full_name.as_deref(),
+        // First, insert the sent_email record to get the tracking token
+        let sent_email = sqlx::query!(
+            r#"
+            INSERT INTO sent_emails (campaign_id, employee_id, template_id, subject, body)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING id, tracking_token
+            "#,
+            campaign_id,
+            employee.id,
+            payload.template_id,
             &template.subject,
-            &template.body,
-        ) {
-            Ok(_) => {
-                sent_count += 1;
+            &template.body
+        )
+        .fetch_one(&pool)
+        .await;
 
-                // Record sent email in database
-                let _ = sqlx::query(
-                    r#"
-                    INSERT INTO sent_emails (campaign_id, employee_id, template_id, subject, body)
-                    VALUES ($1, $2, $3, $4, $5)
-                    "#
-                )
-                .bind(campaign_id)
-                .bind(employee.id)
-                .bind(payload.template_id)
-                .bind(&template.subject)
-                .bind(&template.body)
-                .execute(&pool)
-                .await;
+        if let Ok(sent) = sent_email {
+            // Add tracking pixel to email body
+            let tracking_pixel = format!(
+                r#"<img src="http://localhost:3000/track/{}" width="1" height="1" alt="" style="display:none;" />"#,
+                sent.tracking_token
+            );
+            let body_with_tracking = format!("{}{}", template.body, tracking_pixel);
+
+            match email_service.send_email(
+                &employee.email,
+                full_name.as_deref(),
+                &template.subject,
+                &body_with_tracking,
+            ) {
+                Ok(_) => {
+                    sent_count += 1;
+                }
+                Err(e) => {
+                    tracing::error!("Failed to send email to {}: {}", employee.email, e);
+                    failed_count += 1;
+
+                    // Delete the sent_email record since we failed to send
+                    let _ = sqlx::query("DELETE FROM sent_emails WHERE id = $1")
+                        .bind(sent.id)
+                        .execute(&pool)
+                        .await;
+                }
             }
-            Err(e) => {
-                tracing::error!("Failed to send email to {}: {}", employee.email, e);
-                failed_count += 1;
-            }
+        } else {
+            tracing::error!("Failed to create sent_email record for {}", employee.email);
+            failed_count += 1;
         }
     }
 
