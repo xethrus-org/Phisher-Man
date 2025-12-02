@@ -64,26 +64,24 @@ pub async fn send_campaign(
         };
 
         // First, insert the sent_email record to get the tracking token
-        let sent_email = sqlx::query!(
-            r#"
-            INSERT INTO sent_emails (campaign_id, employee_id, template_id, subject, body)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, tracking_token
-            "#,
-            campaign_id,
-            employee.id,
-            payload.template_id,
-            &template.subject,
-            &template.body
+        let sent_email = sqlx::query_as::<_, (Uuid, Uuid)>(
+            "INSERT INTO sent_emails (campaign_id, employee_id, template_id, subject, body)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id, tracking_token"
         )
+        .bind(campaign_id)
+        .bind(employee.id)
+        .bind(payload.template_id)
+        .bind(&template.subject)
+        .bind(&template.body)
         .fetch_one(&pool)
         .await;
 
-        if let Ok(sent) = sent_email {
+        if let Ok((sent_id, tracking_token)) = sent_email {
             // Add tracking pixel to email body
             let tracking_pixel = format!(
                 r#"<img src="http://localhost:3000/track/{}" width="1" height="1" alt="" style="display:none;" />"#,
-                sent.tracking_token
+                tracking_token
             );
             let body_with_tracking = format!("{}{}", template.body, tracking_pixel);
 
@@ -102,7 +100,7 @@ pub async fn send_campaign(
 
                     // Delete the sent_email record since we failed to send
                     let _ = sqlx::query("DELETE FROM sent_emails WHERE id = $1")
-                        .bind(sent.id)
+                        .bind(sent_id)
                         .execute(&pool)
                         .await;
                 }
