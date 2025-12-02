@@ -74,22 +74,21 @@ async fn record_interaction(
     interaction_type: &str,
 ) -> Result<()> {
     // Get the sent_email_id from tracking_token
-    let sent_email = sqlx::query!(
-        "SELECT id FROM sent_emails WHERE tracking_token = $1",
-        tracking_token
+    let sent_email = sqlx::query_as::<_, (Uuid,)>(
+        "SELECT id FROM sent_emails WHERE tracking_token = $1"
     )
+    .bind(tracking_token)
     .fetch_optional(pool)
     .await?;
 
-    if let Some(email) = sent_email {
+    if let Some((email_id,)) = sent_email {
         // Check if this interaction already exists (prevent duplicates for opens)
         if interaction_type == "email_opened" {
-            let existing = sqlx::query!(
-                "SELECT id FROM interactions
-                 WHERE sent_email_id = $1 AND interaction_type = $2",
-                email.id,
-                interaction_type
+            let existing = sqlx::query_as::<_, (Uuid,)>(
+                "SELECT id FROM interactions WHERE sent_email_id = $1 AND interaction_type = $2"
             )
+            .bind(email_id)
+            .bind(interaction_type)
             .fetch_optional(pool)
             .await?;
 
@@ -100,21 +99,18 @@ async fn record_interaction(
         }
 
         // Insert interaction
-        sqlx::query!(
-            r#"
-            INSERT INTO interactions (sent_email_id, interaction_type, metadata)
-            VALUES ($1, $2, '{}')
-            "#,
-            email.id,
-            interaction_type
+        sqlx::query(
+            "INSERT INTO interactions (sent_email_id, interaction_type, metadata) VALUES ($1, $2, '{}')"
         )
+        .bind(email_id)
+        .bind(interaction_type)
         .execute(pool)
         .await?;
 
         tracing::info!(
             "Recorded {} for sent_email_id: {}",
             interaction_type,
-            email.id
+            email_id
         );
     } else {
         tracing::warn!("Tracking token not found: {}", tracking_token);
@@ -131,31 +127,28 @@ async fn record_interaction_with_metadata(
     metadata: serde_json::Value,
 ) -> Result<()> {
     // Get the sent_email_id from tracking_token
-    let sent_email = sqlx::query!(
-        "SELECT id FROM sent_emails WHERE tracking_token = $1",
-        tracking_token
+    let sent_email = sqlx::query_as::<_, (Uuid,)>(
+        "SELECT id FROM sent_emails WHERE tracking_token = $1"
     )
+    .bind(tracking_token)
     .fetch_optional(pool)
     .await?;
 
-    if let Some(email) = sent_email {
+    if let Some((email_id,)) = sent_email {
         // Insert interaction with metadata
-        sqlx::query!(
-            r#"
-            INSERT INTO interactions (sent_email_id, interaction_type, metadata)
-            VALUES ($1, $2, $3)
-            "#,
-            email.id,
-            interaction_type,
-            metadata
+        sqlx::query(
+            "INSERT INTO interactions (sent_email_id, interaction_type, metadata) VALUES ($1, $2, $3)"
         )
+        .bind(email_id)
+        .bind(interaction_type)
+        .bind(metadata)
         .execute(pool)
         .await?;
 
         tracing::info!(
             "Recorded {} for sent_email_id: {}",
             interaction_type,
-            email.id
+            email_id
         );
     } else {
         tracing::warn!("Tracking token not found: {}", tracking_token);

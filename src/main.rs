@@ -71,7 +71,8 @@ async fn main() {
     // build tracking routes (not under /api to avoid CORS issues with email clients)
     let tracking_routes = Router::new()
         .route("/track/:token", get(handlers::track_pixel))
-        .route("/click/:token/:link_id", get(handlers::track_link));
+        .route("/click/:token/:link_id", get(handlers::track_link))
+        .with_state(pool.clone());
 
     // build our application with routes
     let app = Router::new()
