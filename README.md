@@ -147,6 +147,7 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for branching conventions, commit format,
 ### Email Testing
 
 See [EMAIL_TESTING.md](./EMAIL_TESTING.md) for email sending setup, ensuring correct email delivery functionality.
+
 Additionally, see  [MANUAL_EMAIL_TESTING.md](./MANUAL_EMAIL_TESTING.md)
 
 ## Roadmap
