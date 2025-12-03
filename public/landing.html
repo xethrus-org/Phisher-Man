@@ -1,48 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Phisher-Man: Failure Page</title>
-        <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
-        <link rel="stylesheet" href="styles.css">
-        <style>
-            .faq p {
-                font-size: 18px;
-            }
-        </style>
-    </head>
-    <body>
-        <h1 class="title">
-            <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt=""
+
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: Failure Page</title>
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .faq p {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title">
+        <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt=""
             style="width:80px; vertical-align:middle;">
-            Phisher-Man: Failure Page
-        </h1>
-        <div class="faq-container">
-            <div class="faq">
-                <h3>Why Are You Seeing This Page? </h3>
-                <p>
-                    &emsp;&emsp;In short, you're here because you failed a phishing test, one that was likely sent 
-                    out by someone that you know. This phishing test was intended to collect statistics
-                    on how likely individuals are to fall for different types of phishing scams. Because you
-                    have failed this phishing test, a change in statistics has been sent to whoever created
-                    this phishing simulation.
-                </p>
-            </div>
-            <div class="faq">
-                <h3>What Does This Mean?</h3>
-                <p>
-                    &emsp;&emsp;This means that someone (likely an employer) now knows that you are vulnerable to
-                    a certain type of phishing scam. This can help the person who sent out this simulation to understand
-                    the best way to improve security among the individuals tested through this simulation. On an
-                    individual level, this means that you should likely improve upon how carefully you look at
-                    strange looking emails and train to be able to recognize a basic phishing email.
-                </p>
-            </div>
+        Phisher-Man: Failure Page
+    </h1>
+    <div class="faq-container">
+        <div class="faq">
+            <h3>Why Are You Seeing This Page? </h3>
+            <p>
+                &emsp;&emsp;In short, you're here because you failed a phishing test, one that was likely sent
+                out by someone that you know. This phishing test was intended to collect statistics
+                on how likely individuals are to fall for different types of phishing scams. Because you
+                have failed this phishing test, a change in statistics has been sent to whoever created
+                this phishing simulation.
+            </p>
         </div>
-        <script>
-            window.onload = function() {
+        <div class="faq">
+            <h3>What Does This Mean?</h3>
+            <p>
+                &emsp;&emsp;This means that someone (likely an employer) now knows that you are vulnerable to
+                a certain type of phishing scam. This can help the person who sent out this simulation to understand
+                the best way to improve security among the individuals tested through this simulation. On an
+                individual level, this means that you should likely improve upon how carefully you look at
+                strange looking emails and train to be able to recognize a basic phishing email.
+            </p>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            if (!sessionStorage.getItem("initialLoadDone")) {
                 console.log("hi");
+
+                sessionStorage.setItem("initialLoadDone", "true");
             }
-        </script>
-    </body>
+        }
+    </script>
+</body>
+
 </html>
