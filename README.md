@@ -148,12 +148,12 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for branching conventions, commit format,
 
 - [x] Multi-tenant database schema
 - [x] Company/Employee/Campaign/Template CRUD APIs
-- [ ] Email sending (SMTP integration)
+- [x] Email sending (SMTP integration)
 - [ ] Tracking pixels and link clicks
 - [ ] GPT API integration for AI-generated emails
 - [ ] Campaign analytics and metrics
-- [ ] Frontend integration with API
-- [ ] Docker deployment setup
+- [x] Frontend integration with API
+- [x] Docker deployment setup
 - [ ] Email spoofing service integration
 
 ## License
