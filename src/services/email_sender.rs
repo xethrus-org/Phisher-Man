@@ -1,5 +1,6 @@
 use lettre::message::header::ContentType;
 use lettre::transport::smtp::authentication::Credentials;
+use lettre::transport::smtp::client::{Tls, TlsParameters};
 use lettre::{Message, SmtpTransport, Transport};
 
 use crate::error::{AppError, Result};
@@ -60,11 +61,21 @@ impl EmailService {
             self.smtp_password.clone(),
         );
 
-        let mailer = SmtpTransport::relay(&self.smtp_server)
+        // Build SMTP transport with STARTTLS for Gmail
+        let mailer_builder = SmtpTransport::relay(&self.smtp_server)
             .map_err(|e| AppError::Internal(format!("Failed to connect to SMTP: {}", e)))?
-            .credentials(creds)
             .port(self.smtp_port)
-            .build();
+            .credentials(creds);
+        
+        // For port 587 (Gmail), use STARTTLS with default TLS parameters
+        let mailer = if self.smtp_port == 587 {
+            // Use STARTTLS for Gmail - create TLS parameters and use Required
+            let tls_params = TlsParameters::new(self.smtp_server.clone())
+                .map_err(|e| AppError::Internal(format!("Failed to create TLS parameters: {}", e)))?;
+            mailer_builder.tls(Tls::Required(tls_params)).build()
+        } else {
+            mailer_builder.build()
+        };
 
         match mailer.send(&email) {
             Ok(response) => {
