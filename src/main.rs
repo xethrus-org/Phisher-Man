@@ -58,6 +58,8 @@ async fn main() {
         .route("/employees/:id", delete(handlers::delete_employee))
         .route("/campaigns", post(handlers::create_campaign))
         .route("/campaigns", get(handlers::list_campaigns))
+        .route("/campaigns/:id/analytics", get(handlers::get_campaign_analytics))
+        .route("/campaigns/:id/send", post(handlers::send_campaign))
         .route("/campaigns/:id", get(handlers::get_campaign))
         .route("/campaigns/:id", patch(handlers::update_campaign))
         .route("/campaigns/:id", delete(handlers::delete_campaign))
@@ -65,8 +67,7 @@ async fn main() {
         .route("/templates", get(handlers::list_templates))
         .route("/templates/:id", get(handlers::get_template))
         .route("/templates/:id", patch(handlers::update_template))
-        .route("/templates/:id", delete(handlers::delete_template))
-        .route("/campaigns/:id/send", post(handlers::send_campaign));
+        .route("/templates/:id", delete(handlers::delete_template));
 
     // build tracking routes (not under /api to avoid CORS issues with email clients)
     let tracking_routes = Router::new()

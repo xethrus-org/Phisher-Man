@@ -1,6 +1,7 @@
+pub mod analytics;
+pub mod campaign;
 pub mod company;
 pub mod employee;
-pub mod campaign;
 pub mod template;
 
 pub use company::{Company, CreateCompany, UpdateCompany};

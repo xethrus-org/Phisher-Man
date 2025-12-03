@@ -168,6 +168,7 @@
                                             ${templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
                                         </select>
                                         <button class="btn" onclick="sendCampaign('${c.id}')">Send Campaign</button>
+                                        <a href="analytics.html?campaign_id=${c.id}" class="btn" style="background: #2196F3; border-color: #2196F3; text-decoration: none;">View Metrics</a>
                                     </td>
                                 </tr>
                             `).join('')}
