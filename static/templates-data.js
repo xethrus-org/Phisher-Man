@@ -92,11 +92,11 @@ const PRE_BUILT_TEMPLATES = [
 <body>
     <div class="container">
         <div class="content">
-            <p>Hi,</p>
+            <p>Hi <strong>[Employee Name]</strong> , </p>
             <p>I'm in back-to-back meetings all day and need your help with something urgent.</p>
-            <p>Can you purchase 5 x $500 gift cards for a client appreciation event happening tomorrow? I need the card numbers sent to me ASAP so I can forward them.</p>
-            <p>Please handle this discreetly - it's a surprise for the team that's closing the deal.</p>
-            <p>Let me know when it's done.</p>
+            <p>In preparation for our client appreciation event happening tomorrow, please go ahead and purchase 5 $250 gift cards and put them on the company card, and send me the card numbers ASAP so I can forward them.</p>
+            <p>Please handle this discreetly - it's a surprise for the team that's are finalizing the deal.</p>
+            <p>Let me know once it's been taken care of.</p>
             <p>Thanks,<br>
             <strong>[CEO Name]</strong><br>
             <em>Sent from my iPhone</em></p>
