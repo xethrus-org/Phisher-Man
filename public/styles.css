@@ -1,6 +1,6 @@
 body {
     background-color: powderblue;
-    font-family: "Arial";
+    font-family: Arial;
 }
 .title {
     text-align: center;
@@ -95,7 +95,7 @@ h2 {
 }
 button {
     margin-top: 10px;
-    background-color: rgb(44, 117, 177);
+    background-color: lightblue;
     color: white;
     border: none;
     border-radius: 8px;

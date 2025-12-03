@@ -1,15 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Phisher-Man: Template Email</title>
-        <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <h1 class="title">
-            <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt="" style="width:80px; vertical-align:middle;">
-            Phisher-Man: Template Email
-        </h1>
-    </body>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: Template Email</title>
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .templates {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            justify-items: center;
+            margin-top: 100px;
+        }
+
+        .template {
+            background-color: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            padding: 10px;
+            width: 90%;
+            text-align: center;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .template p {
+            text-align: left;
+            font-size: 18px;
+            padding: 20px;
+        }
+
+        .template h3 {
+            font-size: 25px;
+        }
+
+        .template:hover {
+            transform: scale(1.03);
+            border-color: blue;
+            background-color: white;
+        }
+
+        .template:visited {
+            color: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title">
+        <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt=""
+            style="width:80px; vertical-align:middle;">
+        Phisher-Man: Template Email
+    </h1>
+    <div class="templates">
+        <div id="fake-password-reset" class="template">
+            <h3>
+                <img src="https://png.pngtree.com/png-vector/20230522/ourmid/pngtree-reset-password-vector-png-image_7104484.png"
+                    alt="" style="width:40px; vertical-align:middle;">
+                Fake Password Reset
+            </h3>
+            <p>
+                &emsp;&emsp;A fake password reset email is a relatively common type of phishing email.
+                These fake emails work by convincing the user that they accidently triggered
+                a password reset on one of their accounts and must reset their password.
+                Often times, more precise phishing attacks will ensure that the targeted
+                user actually owns an account of the type specified in the email. This increases
+                the likelihood the attacker has of the user actually falling for the scam and
+                entering an old password in addition to a new password, granting the attacker the
+                actual password of that account.
+            </p>
+        </div>
+        <div id="fake-invoice" class="template">
+            <h3>
+                <img src="https://cdn-icons-png.flaticon.com/512/8354/8354688.png" alt=""
+                    style="width:40px; vertical-align:middle;">
+                Fake Invoice
+            </h3>
+            <p>
+                &emsp;&emsp;A fake invoice is one of the most common phishing email types. These work about how
+                one might expect. An attacker will send a user a fake invoice to pay for some item or
+                service that does not actually exist. The user, if they respond, will either end up
+                paying for these items/services, revealing sensitive information such as their payment
+                information, or, in many cases, both. Fake invoices may be one of (if not the most)
+                effective phishing scam formats out there.
+            </p>
+        </div>
+        <div id="fake-compromised-account" class="template">
+            <h3>
+                <img src="https://png.pngtree.com/png-vector/20220929/ourmid/pngtree-scam-vector-png-image_6223792.png"
+                    alt="" style="width:40px; vertical-align:middle;">
+                Fake Compromised Account
+            </h3>
+            <p>
+                &emsp;&emsp;A compromised account email is another common type of phishing email, as it is extremely
+                effective. These work by informing the user that one of their accounts has been compromised
+                and they are thus required to verify important account information immediately to protect
+                their account. This is particularly effective because it creates a sense of urgency in the
+                user, making them more likely to fall for this particular phishing scam. Naturally, once
+                they "verify" their account details, said details are sent to the attacker who can now
+                access the victim's account based on the given information.
+            </p>
+        </div>
+    </div>
+    <script>
+        const fakePasswordReset = document.getElementById("fake-password-reset");
+        const fakeInvoice = document.getElementById("fake-invoice");
+        const fakeCompromisedAccount = document.getElementById("fake-compromised-account");
+
+        fakePasswordReset.addEventListener("click", async () => {
+            const res = await fetch("/load-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    subject: "Microsoft Account Password Reset", 
+                    message: `
+                        <h1>Password Reset Link</h1>
+                        <p>
+                            Please visit this link to reset your password for your Microsoft account.<br><br>
+                            Here is the link: www.fake.com<br><br>
+                            If you didn't request a password reset, you may safely ignore this email.<br><br>
+                            Thanks,<br><br>
+                            The Microsoft Account Team
+                        </p>
+                    `
+                })
+            })
+            const data = await res.json();
+            window.location.href = "email_entering.html";
+        });
+        fakeInvoice.addEventListener("click", async () => {
+            const res = await fetch("/load-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    subject: "Electric Bill Invoice", 
+                    message: `
+                        <p>
+                            Hi,<br><br>
+                            Thank you for working with us. Your bill for $189.58 has been sent to your mailing address.<br><br>
+                            If you have already paid online, or would like to pay online, please visit www.fake.com to confirm your payment.<br><br>
+                            If you have any questions or would like to arrange any alternative payment methods then do not hesitate to get in touch.<br><br>
+                            Our contact information can be found on the same link attached to this email.<br><br>
+                            Thanks,<br><br>
+                            Big Spark Electric
+                        </p>
+                    `
+                })
+            })
+            const data = await res.json();
+            window.location.href = "email_entering.html";
+        });
+        fakeCompromisedAccount.addEventListener("click", async () => {
+            const res = await fetch("/load-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    subject: "Microsoft Account Security Alert", 
+                    message: `
+                        <h1>Security Alert</h1>
+                        <p>
+                            We believe that someone else may have accessed your Microsoft account based on login location data.<br>
+                            When this occurs, we require you to reset your password via the link contained in this email.<br><br>
+                            If someone else has access to your account, they have your current password and may be trying to access<br>
+                            your personal information.<br><br>
+                            Please visit this link to change your password and protect your account's security: www.fake.com.<br><br>
+                            Thanks,<br><br>
+                            The Microsoft Account Team
+                        </p>
+                    `
+                })
+            })
+            const data = await res.json();
+            window.location.href = "email_entering.html";
+        });
+    </script>
+</body>
+
 </html>
