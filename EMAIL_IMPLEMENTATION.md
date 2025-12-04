@@ -2,7 +2,7 @@
 
 ## Overview
 
-The email sending feature lets you send phishing simulation campaigns to employees via SMTP. Each email includes a tracking pixel for monitoring opens.
+The email sending feature lets you send phishing simulation campaigns to employees via SMTP. Each email includes tracking pixels for monitoring opens and wrapped links for tracking clicks.
 
 ## Configuration
 
@@ -28,12 +28,16 @@ When you send a campaign:
 3. For each employee:
    - Generate a unique tracking token
    - Insert a record in `sent_emails` table
+   - **Replace all links** with tracking URLs: `<a href="http://localhost:3000/click/{token}/{link_id}">`
+   - Store original URLs in `tracked_links` table
    - Append tracking pixel to email body: `<img src="http://yourserver.com/track/{token}" width="1" height="1" />`
    - Send via SMTP
    - If sending fails, delete the `sent_emails` record
 4. Update campaign status to "active"
 
-The tracking pixel is a 1x1 transparent PNG. When the recipient's email client loads images, it makes a request to the `/track/{token}` endpoint, which records an interaction.
+**Email Open Tracking:** 1x1 transparent PNG image that records a view when loaded.
+
+**Link Click Tracking:** All `<a href>` tags are automatically replaced with tracking URLs. When clicked, the system records the interaction and redirects to the original URL.
 
 ## API Usage
 
@@ -59,10 +63,16 @@ The `sent_emails` table stores:
 - The tracking token for that email
 - Timestamp of when it was sent
 
+The `tracked_links` table stores:
+- The original URL before replacement
+- Link index (for multiple links in one email)
+- Reference to which sent_email it belongs to
+
 The `interactions` table records:
 - Email opens (when tracking pixel loads)
-- Link clicks (if you use tracking links)
+- Link clicks (when tracking URL is clicked)
 - Timestamp of each interaction
+- Metadata (like which link was clicked)
 
 ## Testing
 

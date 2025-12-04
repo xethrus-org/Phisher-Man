@@ -59,12 +59,36 @@ pub async fn track_link(
         ).await;
     });
 
-    // For now, redirect to a placeholder page
-    // In production, you'd decode the link_id to get the actual URL
-    (
-        StatusCode::SEE_OTHER,
-        [(header::LOCATION, format!("/clicked?link={}", link_id))],
+    // Look up the original URL from the database
+    let link_index: i32 = link_id.parse().unwrap_or(0);
+
+    let original_url = sqlx::query_as::<_, (String,)>(
+        "SELECT tl.original_url
+         FROM tracked_links tl
+         JOIN sent_emails se ON tl.sent_email_id = se.id
+         WHERE se.tracking_token = $1 AND tl.link_index = $2"
     )
+    .bind(tracking_token)
+    .bind(link_index)
+    .fetch_optional(&pool)
+    .await;
+
+    match original_url {
+        Ok(Some((url,))) => {
+            // Redirect to the original URL
+            (
+                StatusCode::SEE_OTHER,
+                [(header::LOCATION, url)],
+            )
+        }
+        _ => {
+            // Fallback to a default page if URL not found
+            (
+                StatusCode::SEE_OTHER,
+                [(header::LOCATION, "/".to_string())],
+            )
+        }
+    }
 }
 
 /// Helper function to record an interaction

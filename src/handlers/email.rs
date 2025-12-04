@@ -1,4 +1,5 @@
 use axum::{extract::{Path, State}, Json};
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -78,12 +79,20 @@ pub async fn send_campaign(
         .await;
 
         if let Ok((sent_id, tracking_token)) = sent_email {
+            // Replace links with tracking URLs
+            let body_with_links = replace_links_with_tracking(
+                &template.body,
+                sent_id,
+                tracking_token,
+                &pool,
+            ).await.unwrap_or_else(|_| template.body.clone());
+
             // Add tracking pixel to email body
             let tracking_pixel = format!(
                 r#"<img src="http://localhost:3000/track/{}" width="1" height="1" alt="" style="display:none;" />"#,
                 tracking_token
             );
-            let body_with_tracking = format!("{}{}", template.body, tracking_pixel);
+            let body_with_tracking = format!("{}{}", body_with_links, tracking_pixel);
 
             match email_service.send_email(
                 &employee.email,
@@ -131,4 +140,47 @@ pub async fn send_campaign(
             sent_count, failed_count
         ),
     }))
+}
+
+async fn replace_links_with_tracking(
+    html_body: &str,
+    sent_email_id: Uuid,
+    tracking_token: Uuid,
+    pool: &PgPool,
+) -> Result<String> {
+    let re = Regex::new(r#"<a\s+(?:[^>]*\s+)?href=["']([^"']+)["']([^>]*)>"#).unwrap();
+    let mut link_index = 0;
+    let mut result = html_body.to_string();
+
+    // Find all links and replace them
+    let matches: Vec<_> = re.captures_iter(html_body).collect();
+
+    for cap in matches.iter().rev() {
+        let full_match = cap.get(0).unwrap();
+        let original_url = cap.get(1).unwrap().as_str();
+        let other_attrs = cap.get(2).unwrap().as_str();
+
+        // Store the original URL in the database
+        sqlx::query(
+            "INSERT INTO tracked_links (sent_email_id, link_index, original_url) VALUES ($1, $2, $3)"
+        )
+        .bind(sent_email_id)
+        .bind(link_index)
+        .bind(original_url)
+        .execute(pool)
+        .await?;
+
+        // Create tracking URL
+        let tracking_url = format!("http://localhost:3000/click/{}/{}", tracking_token, link_index);
+        let new_link = format!(r#"<a href="{}"{}>"#, tracking_url, other_attrs);
+
+        // Replace the link
+        let start = full_match.start();
+        let end = full_match.end();
+        result.replace_range(start..end, &new_link);
+
+        link_index += 1;
+    }
+
+    Ok(result)
 }
