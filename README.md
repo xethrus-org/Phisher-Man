@@ -156,12 +156,11 @@ Additionally, see  [MANUAL_EMAIL_TESTING.md](./MANUAL_EMAIL_TESTING.md)
 - [x] Company/Employee/Campaign/Template CRUD APIs
 - [x] Email sending (SMTP integration)
 - [x] Tracking pixels
-- [ ] Link clicks
 - [ ] GPT API integration for AI-generated emails
+   - Functionality exists, but not accessible because OpenAI API calls cost money
 - [x] Campaign analytics and metrics
 - [x] Frontend integration with API
 - [x] Docker deployment setup
-- [ ] Email spoofing service integration
 
 ## License
 
