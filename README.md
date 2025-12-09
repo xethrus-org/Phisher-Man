@@ -1,36 +1,168 @@
-# Phisher-Man
-## phishing service made modern!
+# PhisherMan
 
-Start with something that can process target details. 
+Phishing simulation and security awareness training platform built with Rust.
 
-Frontend: Javascript
---> Process Data, 
+## What is this?
 
-1. we want a starter phishing email for when only basic data
-   - one api call
-   - have a template, and fill in their details. do this by parsing
-2. with extra, creating personalized phishing email
-   - one api call per user
-   - flag users with personalized data, and send phishing email to each user personalized
-3. do something with sending the email
-   - we have a list of emails. sqlite database to store?
-   - send email. record everything that happens. analyze. then store.
-   - Think about how we want to do the analysis, emphasis on this part.
-   - **first iteration**: we can store data in text file instead of database
-   - parse the textfile to generate very basic metric. now storing that metric on another text file
-4. deployment. onto cloud.  
+PhisherMan helps organizations test their employees' vulnerability to phishing attacks in a controlled, educational environment. Create campaigns, send simulated phishing emails, track interactions, and analyze results.
 
+**Important**: This is for authorized security testing and education only.
 
+## Tech Stack
 
-Backend: 
+- **Backend**: Rust + Axum web framework
+- **Database**: PostgreSQL (multi-tenant architecture)
+- **Frontend**: HTML/CSS/JavaScript (served as static files)
+- **Deployment**: Docker
 
+## Features
 
+- **Multi-tenant**: Support for multiple companies/organizations
+- **Employee Management**: Store employee data with custom metadata
+- **Campaign Management**: Create and track phishing campaigns
+- **Email Templates**: Pre-built and custom email templates
+- **Tracking**: Monitor email opens, link clicks, and interactions (coming soon)
+- **Analytics**: Campaign metrics and reporting (coming soon)
 
+## Quick Start
 
+### Prerequisites
 
+- Docker & Docker Compose
 
-### actionable steps
+### Setup (Docker - Recommended)
 
-    1. aquire api key for gpt
-    2. decide service for spoof emails / voip
+1. Clone the repo
+```bash
+git clone git@github.com:xethrus-org/Phisher-Man.git
+cd PhisherMan
+```
 
+2. Start everything with docker-compose
+```bash
+docker-compose up --build
+```
+
+That's it! The server runs on `http://localhost:3000`
+
+Docker compose handles:
+- PostgreSQL database setup
+- Running migrations
+- Building and running the Rust app
+
+### Local Development (Without Docker)
+
+If you want to run Rust locally:
+
+1. **Prerequisites**: Rust 1.88+ ([install rustup](https://rustup.rs/)) + Docker (for PostgreSQL)
+
+2. **Start PostgreSQL**
+```bash
+docker run --name phisherman-db \
+  -e POSTGRES_PASSWORD=dev123 \
+  -e POSTGRES_DB=phisherman \
+  -p 5432:5432 \
+  -d postgres:15
+```
+
+3. **Setup environment**
+```bash
+cp .env.example .env
+```
+
+4. **Run migrations**
+```bash
+docker exec -i phisherman-db psql -U postgres -d phisherman < migrations/001_initial_schema.sql
+```
+
+5. **Build and run**
+```bash
+cargo build
+cargo run
+```
+
+Server runs on `http://localhost:3000`
+
+## API Endpoints
+
+### Companies
+- `POST /api/companies` - Create company
+- `GET /api/companies` - List companies
+- `GET /api/companies/:id` - Get company
+- `PATCH /api/companies/:id` - Update company
+- `DELETE /api/companies/:id` - Delete company
+
+### Employees
+- `POST /api/employees` - Create employee
+- `GET /api/employees?company_id=<uuid>` - List employees (filter by company)
+- `GET /api/employees/:id` - Get employee
+- `PATCH /api/employees/:id` - Update employee
+- `DELETE /api/employees/:id` - Delete employee
+
+### Campaigns
+- `POST /api/campaigns` - Create campaign
+- `GET /api/campaigns?company_id=<uuid>` - List campaigns
+- `GET /api/campaigns/:id` - Get campaign
+- `PATCH /api/campaigns/:id` - Update campaign
+- `DELETE /api/campaigns/:id` - Delete campaign
+
+### Templates
+- `POST /api/templates` - Create template
+- `GET /api/templates` - List templates
+- `GET /api/templates/:id` - Get template
+- `PATCH /api/templates/:id` - Update template
+- `DELETE /api/templates/:id` - Delete template
+
+### Example
+
+Create a company:
+```bash
+curl -X POST http://localhost:3000/api/companies \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Acme Corp","domain":"acme.com"}'
+```
+
+## Project Structure
+
+```
+PhisherMan/
+├── src/
+│   ├── main.rs              # Entry point
+│   ├── config.rs            # Configuration
+│   ├── error.rs             # Error handling
+│   ├── models/              # Database models
+│   ├── handlers/            # API request handlers
+│   ├── services/            # Business logic (future)
+│   └── db/                  # Database utilities
+├── migrations/              # SQL migrations
+├── static/                  # Frontend files
+├── DEVELOPMENT.md           # Development guide
+└── .env.example             # Environment template
+```
+
+## Development
+
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for branching conventions, commit format, and workflow.
+
+### Email Testing
+
+See [EMAIL_TESTING.md](./EMAIL_TESTING.md) for email sending setup, ensuring correct email delivery functionality.
+
+Additionally, see  [MANUAL_EMAIL_TESTING.md](./MANUAL_EMAIL_TESTING.md)
+
+## Roadmap
+
+- [x] Multi-tenant database schema
+- [x] Company/Employee/Campaign/Template CRUD APIs
+- [x] Email sending (SMTP integration)
+- [x] Tracking pixels
+- [ ] Link clicks
+- [ ] GPT API integration for AI-generated emails
+- [x] Campaign analytics and metrics
+- [x] Frontend integration with API
+- [x] Docker deployment setup
+- [ ] Email spoofing service integration
+
+## License
+
+ISC

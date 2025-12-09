@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phisher-Man: AI Generated Email</title>
+    <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+    <link rel="stylesheet" href="styles.css">
+    <script src="api.js"></script>
+    <style>
+        .generator-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .nav-links a {
+            margin-right: 15px;
+            color: rgb(44, 117, 177);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .section {
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid black;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            position: static;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: rgb(44, 117, 177);
+            outline: none;
+        }
+        .btn {
+            padding: 12px 24px;
+            background: rgb(44, 117, 177);
+            color: white;
+            border: 2px solid rgb(44, 117, 177);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: rgb(33, 88, 133);
+            border-color: rgb(33, 88, 133);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .btn:disabled {
+            background: #ccc;
+            border-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+        .generated-output {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            margin-top: 20px;
+        }
+        .generated-output h3 {
+            margin-top: 0;
+        }
+        .email-preview {
+            background: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .email-preview strong {
+            color: #333;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid rgb(44, 117, 177);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">
+        <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt="" style="width:80px; vertical-align:middle;">
+        Phisher-Man: AI Generated Email
+    </h1>
+
+    <div class="generator-container">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="template.html">Use Pre-Built Template</a>
+            <a href="custom.html">Create Custom Email</a>
+        </div>
+
+        <div class="info-box">
+            <strong>How it works:</strong> Provide context and target details below, and our AI will generate a realistic phishing email for your security awareness campaign. This helps test employee awareness with varied, contextually-relevant scenarios.
+        </div>
+
+        <div class="section">
+            <h2>Email Generation Parameters</h2>
+            <form id="generate-form">
+                <div class="form-group">
+                    <label for="phishing-type">Phishing Type:</label>
+                    <select id="phishing-type" required>
+                        <option value="">Select type...</option>
+                        <option value="password_reset">Password Reset / Account Security</option>
+                        <option value="urgent_action">Urgent Action Required</option>
+                        <option value="package_delivery">Package Delivery</option>
+                        <option value="payroll">Payroll / HR</option>
+                        <option value="ceo_fraud">CEO / Executive Request</option>
+                        <option value="it_support">IT Support</option>
+                        <option value="cloud_storage">Cloud Storage / File Sharing</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="target-role">Target Role/Department (optional):</label>
+                    <input type="text" id="target-role" placeholder="e.g., Finance, Engineering, Sales">
+                </div>
+
+                <div class="form-group">
+                    <label for="company-context">Company/Industry Context (optional):</label>
+                    <textarea id="company-context" placeholder="e.g., Healthcare company, uses Microsoft 365, recent security incidents..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="urgency-level">Urgency Level:</label>
+                    <select id="urgency-level">
+                        <option value="low">Low - General notification</option>
+                        <option value="medium" selected>Medium - Action needed soon</option>
+                        <option value="high">High - Immediate action required</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="generate-btn">Generate Email</button>
+            </form>
+        </div>
+
+        <div id="output-section" style="display: none;">
+            <div class="section generated-output">
+                <h3>Generated Email</h3>
+                <div class="email-preview">
+                    <p><strong>Subject:</strong> <span id="output-subject"></span></p>
+                </div>
+                <div class="email-preview">
+                    <p><strong>Body:</strong></p>
+                    <div id="output-body"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="save-company">Save to Company:</label>
+                    <select id="save-company">
+                        <option value="">Loading companies...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="template-name">Template Name:</label>
+                    <input type="text" id="template-name" placeholder="e.g., AI Generated Password Reset">
+                </div>
+
+                <button class="btn" onclick="saveGeneratedTemplate()">Save as Template</button>
+            </div>
+        </div>
+
+        <div id="loading-section" style="display: none;" class="section">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Generating email with AI...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let generatedEmail = null;
+        let companies = [];
+
+        // Load companies
+        async function loadCompanies() {
+            try {
+                companies = await API.companies.list();
+                const select = document.getElementById('save-company');
+
+                if (companies.length === 0) {
+                    select.innerHTML = '<option value="">No companies found - create one first</option>';
+                } else {
+                    select.innerHTML = '<option value="">Select a company...</option>' +
+                        companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                }
+            } catch (error) {
+                showMessage('Failed to load companies: ' + error.message, 'error');
+            }
+        }
+
+        // Generate email using simple template logic (mock AI for demo)
+        function generateEmail(type, role, context, urgency) {
+            // In production, this would call an AI API
+            // For demo purposes, we'll use template-based generation
+
+            const templates = {
+                password_reset: {
+                    subject: urgency === 'high' ? 'URGENT: Your password will expire in 2 hours' : 'Password Reset Required',
+                    body: `
+                        <p>Dear User,</p>
+                        <p>${urgency === 'high' ? 'CRITICAL ALERT: ' : ''}We have detected that your password has not been updated recently and poses a security risk.</p>
+                        ${context ? `<p>As part of our ${context}, we require all users to update their credentials.</p>` : ''}
+                        <p><strong>Action Required:</strong> Please reset your password immediately by clicking the link below.</p>
+                        <p><a href="#" style="background: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Reset Password</a></p>
+                        ${role ? `<p>This applies to all ${role} department staff.</p>` : ''}
+                        <p>If you do not reset within 24 hours, your account will be temporarily locked.</p>
+                        <p>Best regards,<br>IT Security Team</p>
+                    `
+                },
+                ceo_fraud: {
+                    subject: urgency === 'high' ? 'RE: Urgent - Need this done NOW' : 'Quick request',
+                    body: `
+                        <p>Hi,</p>
+                        <p>I'm in back-to-back meetings and need your help with something time-sensitive.</p>
+                        ${role ? `<p>Since you're in ${role}, you should have access to handle this.</p>` : ''}
+                        <p>Can you process a wire transfer for $15,000 to one of our vendors? I'll send you the account details separately.</p>
+                        <p>${urgency === 'high' ? 'This needs to happen in the next hour or we risk losing the deal.' : 'Please handle this today if possible.'}</p>
+                        <p>Thanks,<br>CEO<br><em>Sent from mobile</em></p>
+                    `
+                },
+                package_delivery: {
+                    subject: 'Delivery Attempt Failed - Action Required',
+                    body: `
+                        <p>Dear Customer,</p>
+                        <p>We attempted to deliver your package but were unable to complete the delivery.</p>
+                        <p><strong>Tracking Number:</strong> 1Z999AA10${Math.floor(Math.random() * 1000000)}</p>
+                        <p>Please download your delivery notice to reschedule or arrange pickup:</p>
+                        <p><a href="#" style="background: #ff6f00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Download Notice (PDF)</a></p>
+                        ${urgency === 'high' ? '<p><strong>NOTE:</strong> Package will be returned to sender in 24 hours if not claimed.</p>' : '<p>Your package will be held for 5 business days.</p>'}
+                        <p>Delivery Services</p>
+                    `
+                },
+                // Add more template types as needed
+            };
+
+            // Default template if type not found
+            const template = templates[type] || {
+                subject: 'Important: Action Required',
+                body: `
+                    <p>Dear User,</p>
+                    <p>This is an important notification regarding your account.</p>
+                    ${context ? `<p>Context: ${context}</p>` : ''}
+                    ${role ? `<p>This message is for: ${role}</p>` : ''}
+                    <p>Please review and take appropriate action.</p>
+                    <p>Thank you</p>
+                `
+            };
+
+            return template;
+        }
+
+        // Handle form submission
+        document.getElementById('generate-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const type = document.getElementById('phishing-type').value;
+            const role = document.getElementById('target-role').value;
+            const context = document.getElementById('company-context').value;
+            const urgency = document.getElementById('urgency-level').value;
+
+            if (!type) {
+                showMessage('Please select a phishing type', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading-section').style.display = 'block';
+            document.getElementById('output-section').style.display = 'none';
+
+            // Simulate AI processing delay
+            setTimeout(() => {
+                generatedEmail = generateEmail(type, role, context, urgency);
+
+                // Display results
+                document.getElementById('output-subject').textContent = generatedEmail.subject;
+                document.getElementById('output-body').innerHTML = generatedEmail.body;
+
+                // Auto-fill template name
+                const typeName = document.getElementById('phishing-type').options[document.getElementById('phishing-type').selectedIndex].text;
+                document.getElementById('template-name').value = `AI Generated: ${typeName}`;
+
+                document.getElementById('loading-section').style.display = 'none';
+                document.getElementById('output-section').style.display = 'block';
+            }, 1500);
+        });
+
+        // Save generated template
+        async function saveGeneratedTemplate() {
+            if (!generatedEmail) {
+                showMessage('No email generated yet', 'error');
+                return;
+            }
+
+            const companyId = document.getElementById('save-company').value;
+            const templateName = document.getElementById('template-name').value.trim();
+
+            if (!companyId) {
+                showMessage('Please select a company', 'error');
+                return;
+            }
+
+            if (!templateName) {
+                showMessage('Please enter a template name', 'error');
+                return;
+            }
+
+            try {
+                await API.templates.create({
+                    name: templateName,
+                    subject: generatedEmail.subject,
+                    body: generatedEmail.body,
+                    template_type: 'ai_generated',
+                    company_id: companyId,
+                });
+
+                showMessage('Template saved successfully!', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } catch (error) {
+                showMessage('Failed to save template: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize
+        loadCompanies();
+    </script>
+</body>
+</html>

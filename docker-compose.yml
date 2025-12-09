@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:15
+    container_name: phisherman-db
+    environment:
+      POSTGRES_DB: phisherman
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/migrations
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: phisherman-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:${DB_PASSWORD:-dev123}@db:5432/phisherman
+      HOST: 0.0.0.0
+      PORT: 3000
+      RUST_LOG: info
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_SERVER: ${SMTP_SERVER:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      FROM_EMAIL: ${FROM_EMAIL}
+      FROM_NAME: ${FROM_NAME:-PhisherMan Security}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./static:/app/static
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 2 &&
+        echo 'Running migrations...' &&
+        psql $$DATABASE_URL < /app/migrations/001_initial_schema.sql || true &&
+        echo 'Starting application...' &&
+        ./phisherman
+      "
+
+volumes:
+  postgres_data:

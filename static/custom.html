@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Phisher-Man: Custom Email</title>
+        <link rel="icon" type="image/png" href="https://www.freepnglogos.com/uploads/email-logo-png-27.png">
+        <link rel="stylesheet" href="styles.css">
+        <script src="api.js"></script>
+    </head>
+    <body>
+        <h1 class="title">
+            <img src="https://www.freepnglogos.com/uploads/email-logo-png-27.png" alt="" style="width:80px; vertical-align:middle;">
+            Phisher-Man: Custom Email
+        </h1>
+
+        <div class="email-text-inputting">
+            <label for="template-name">Template Name:</label><br>
+            <input type="text" id="template-name" placeholder="e.g., Password Reset Phishing" required><br><br>
+
+            <label for="company">Company:</label><br>
+            <select id="company" required>
+                <option value="">Loading companies...</option>
+            </select><br><br>
+
+            <label for="subject">Subject:</label><br>
+            <textarea id="subject" placeholder="Write your email subject..." required></textarea>
+
+            <label for="body">Body:</label><br>
+            <textarea id="body" placeholder="Write your email body..." required></textarea>
+
+            <button id="submit-btn" type="submit">Create Template</button>
+            <a href="dashboard.html" style="margin-left: 20px;">View Dashboard</a>
+        </div>
+
+        <script>
+            let companies = [];
+
+            // Load companies on page load
+            async function loadCompanies() {
+                try {
+                    companies = await API.companies.list();
+                    const select = document.getElementById('company');
+
+                    if (companies.length === 0) {
+                        select.innerHTML = '<option value="">No companies found - create one first</option>';
+                        return;
+                    }
+
+                    select.innerHTML = '<option value="">Select a company...</option>' +
+                        companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                } catch (error) {
+                    showMessage('Failed to load companies: ' + error.message, 'error');
+                }
+            }
+
+            // Handle form submission
+            document.getElementById('submit-btn').addEventListener('click', async () => {
+                const name = document.getElementById('template-name').value.trim();
+                const companyId = document.getElementById('company').value;
+                const subject = document.getElementById('subject').value.trim();
+                const body = document.getElementById('body').value.trim();
+
+                if (!name || !companyId || !subject || !body) {
+                    showMessage('Please fill in all fields', 'error');
+                    return;
+                }
+
+                try {
+                    const template = await API.templates.create({
+                        name,
+                        subject,
+                        body,
+                        template_type: 'custom',
+                        company_id: companyId,
+                    });
+
+                    showMessage('Template created successfully!', 'success');
+
+                    // Clear form
+                    document.getElementById('template-name').value = '';
+                    document.getElementById('subject').value = '';
+                    document.getElementById('body').value = '';
+
+                    // Redirect to dashboard after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } catch (error) {
+                    showMessage('Failed to create template: ' + error.message, 'error');
+                }
+            });
+
+            // Initialize
+            loadCompanies();
+        </script>
+    </body>
+</html>

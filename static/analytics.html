@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Analytics - PhisherMan</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1/dist/chartjs-chart-matrix.min.js"></script>
+</head>
+<body>
+    <nav>
+        <h1>PhisherMan Analytics</h1>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="companies.html">Companies</a>
+            <a href="employees.html">Employees</a>
+            <a href="campaigns.html">Campaigns</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="loading" style="text-align: center; padding: 40px;">
+            <p>Loading analytics...</p>
+        </div>
+
+        <div id="analytics-content" style="display: none;">
+            <h2 id="campaign-name">Campaign Analytics</h2>
+
+            <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 12px 16px; margin: 20px 0; border-radius: 4px; font-size: 14px;">
+                <strong>Note on Tracking:</strong> Email opens are tracked via invisible tracking pixels (1x1 images). Link clicks are tracked by wrapping all links with unique tracking URLs that redirect to the original destination. In real-world scenarios, many email clients block images by default which can underreport open rates, but click tracking is highly reliable since it requires direct user interaction.
+            </div>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+                <div class="stat-card" style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Total Sent</div>
+                    <div id="stat-sent" style="font-size: 32px; font-weight: bold; color: #333;">0</div>
+                </div>
+                <div class="stat-card" style="background: #e3f2fd; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Open Rate</div>
+                    <div id="stat-opened" style="font-size: 32px; font-weight: bold; color: #1976d2;">0%</div>
+                </div>
+                <div class="stat-card" style="background: #ffebee; padding: 20px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Click Rate</div>
+                    <div id="stat-clicked" style="font-size: 32px; font-weight: bold; color: #d32f2f;">0%</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h3>Department Vulnerability Heatmap</h3>
+                <p style="color: #666; margin-bottom: 20px;">Click rate by department (darker red = higher risk)</p>
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <canvas id="heatmapChart"></canvas>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px;">
+                <h3>Department Breakdown</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Employees</th>
+                            <th>Emails Sent</th>
+                            <th>Opened</th>
+                            <th>Clicked</th>
+                            <th>Open Rate</th>
+                            <th>Click Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dept-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const campaignId = urlParams.get('campaign_id');
+
+        if (!campaignId) {
+            document.getElementById('loading').innerHTML = '<p style="color: red;">Error: No campaign ID provided</p>';
+        } else {
+            loadAnalytics();
+        }
+
+        async function loadAnalytics() {
+            try {
+                const response = await fetch(`/api/campaigns/${campaignId}/analytics`);
+                if (!response.ok) {
+                    throw new Error('Failed to load analytics');
+                }
+
+                const data = await response.json();
+                displayAnalytics(data);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                document.getElementById('loading').innerHTML =
+                    '<p style="color: red;">Error loading analytics. Please try again.</p>';
+            }
+        }
+
+        function displayAnalytics(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('analytics-content').style.display = 'block';
+
+            document.getElementById('campaign-name').textContent = data.campaign_name;
+            document.getElementById('stat-sent').textContent = data.total_sent;
+            document.getElementById('stat-opened').textContent = data.open_rate.toFixed(1) + '%';
+            document.getElementById('stat-clicked').textContent = data.click_rate.toFixed(1) + '%';
+
+            renderHeatmap(data.departments);
+            renderDepartmentTable(data.departments);
+        }
+
+        function renderHeatmap(departments) {
+            if (departments.length === 0) {
+                document.getElementById('heatmapChart').parentElement.innerHTML =
+                    '<p style="text-align: center; color: #666;">No department data available</p>';
+                return;
+            }
+
+            const ctx = document.getElementById('heatmapChart').getContext('2d');
+
+            const chartData = departments.map((dept, index) => ({
+                x: dept.department,
+                y: 'Click Rate',
+                v: dept.click_rate
+            }));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: departments.map(d => d.department),
+                    datasets: [{
+                        label: 'Click Rate (%)',
+                        data: departments.map(d => d.click_rate),
+                        backgroundColor: departments.map(d => {
+                            const rate = d.click_rate;
+                            if (rate >= 20) return 'rgba(211, 47, 47, 0.8)';
+                            if (rate >= 10) return 'rgba(255, 152, 0, 0.8)';
+                            return 'rgba(76, 175, 80, 0.8)';
+                        }),
+                        borderColor: departments.map(d => {
+                            const rate = d.click_rate;
+                            if (rate >= 20) return 'rgba(211, 47, 47, 1)';
+                            if (rate >= 10) return 'rgba(255, 152, 0, 1)';
+                            return 'rgba(76, 175, 80, 1)';
+                        }),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const dept = departments[context.dataIndex];
+                                    return [
+                                        `Click Rate: ${dept.click_rate.toFixed(1)}%`,
+                                        `Employees: ${dept.employee_count}`,
+                                        `Clicked: ${dept.links_clicked}/${dept.emails_sent}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Click Rate (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Department'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDepartmentTable(departments) {
+            const tbody = document.getElementById('dept-table-body');
+            tbody.innerHTML = '';
+
+            if (departments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666;">No data available</td></tr>';
+                return;
+            }
+
+            departments.forEach(dept => {
+                const row = document.createElement('tr');
+
+                const riskClass = dept.click_rate >= 20 ? 'high-risk' :
+                                 dept.click_rate >= 10 ? 'medium-risk' : 'low-risk';
+
+                row.innerHTML = `
+                    <td><strong>${dept.department}</strong></td>
+                    <td>${dept.employee_count}</td>
+                    <td>${dept.emails_sent}</td>
+                    <td>${dept.emails_opened}</td>
+                    <td class="${riskClass}">${dept.links_clicked}</td>
+                    <td>${dept.open_rate.toFixed(1)}%</td>
+                    <td class="${riskClass}"><strong>${dept.click_rate.toFixed(1)}%</strong></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+
+    <style>
+        .high-risk {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+        .medium-risk {
+            color: #ff9800;
+        }
+        .low-risk {
+            color: #4caf50;
+        }
+    </style>
+</body>
+</html>
